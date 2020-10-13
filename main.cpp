@@ -9,6 +9,10 @@ int main()
 	a = 7878;
 	b = 59;
 
+<<<<<<< Updated upstream
 	a * b;
 
+=======
+	c = karatsuba(a, b);
+>>>>>>> Stashed changes
 }

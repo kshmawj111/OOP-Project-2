@@ -1,5 +1,5 @@
 #include "./inf_int.h"
-
+#pragma warning(disable:4996)
 /*
 Originally written by
 컴퓨터공학부
@@ -48,8 +48,23 @@ inf_int::inf_int(int n){
 	}
 }
 
-inf_int::inf_int(const char* str)
+inf_int::inf_int(string str)
 {	
+	if (str[0] == '-') this->thesign = false;
+	else this->thesign = true;
+
+	unsigned int size;
+
+	this->thesign == false ? size = str.size() - 1 : size = str.size();
+	this->length = size;
+
+	reverse(str.begin(), str.end());
+
+	char* temp = new char[size];
+	strcpy(temp, str.c_str());
+
+	this->digits = temp;
+
 	// 0번째 값 인식 후 -면 부호 false
 	// for를 뒤에서부터 돌려서 reverse 후 새로운 객체에 저장
 	// "100"이 들어왔다면 내부 표현에 맞게 "001"로 변환
@@ -84,11 +99,41 @@ inf_int& inf_int::operator=(const inf_int& a)
 
 bool operator==(const inf_int& a, const inf_int& b)
 {
+<<<<<<< Updated upstream
     // we assume 0 is always positive.
     if ( (strcmp(a.digits , b.digits)==0) && a.thesign==b.thesign )	// 부호가 같고, 절댓값이 일치해야함.
         return true;
     return false;
 }
+=======
+	inf_int result;
+	string digit_result = "";
+	unsigned long long int max_length = (unsigned long long)a.length + (unsigned long long)b.length;		// 곱셈 결과의 최대 길이
+	int final_digit, carry;
+	int* digit_mult = new int[max_length]();	// result는 각 자리수 간 곱셈의 결과를 저장하는 정수형 배열. () 통해 0으로 초기화
+												// result의 배열의 인덱스 자체가 자릿수 역할을 함. result[2] = 10^2의 자리
+
+	// 둘 중 하나가 0이면 
+	if (a.digits[0] == '0' || b.digits[0] == '0') {
+		result.digits[0] = NULL;
+		result.length = 0;
+		result.thesign = true;
+
+	}
+
+	// 부호 결정
+	if (a.thesign != b.thesign) result.thesign = false;
+	else result.thesign = true;
+
+	// 절대값끼리 곱셈
+	for (unsigned int a_digit=0; a_digit < a.length; a_digit++) {
+
+		for (unsigned int b_digit=0; b_digit < b.length; b_digit++) {
+			// 각 자리수의 값을 계산 후 digit_mult에 합산
+			digit_mult[a_digit + b_digit] += (a.digits[a_digit] - '0') * (b.digits[b_digit] - '0');
+		}
+	}
+>>>>>>> Stashed changes
 
 bool operator!=(const inf_int& a, const inf_int& b)
 {
@@ -131,7 +176,20 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 			c.Add(b.digits[i], i+1);
 		}
 
+<<<<<<< Updated upstream
 		c.thesign=a.thesign;	
+=======
+		char* digit_char_ary = new char[digit_result.length() + 1];	// 1은 '\n'용
+		strcpy(digit_char_ary, digit_result.c_str());
+		result.digits = digit_char_ary;
+		result.length = digit_result.length();
+		return result;
+	}
+	else {
+		result.digits = NULL;
+		result.length = 0;
+		result.thesign = false;
+>>>>>>> Stashed changes
 
 		return c;
 	}else{	// 이항의 부호가 다를 경우 - 연산자로 연산
@@ -140,7 +198,12 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 								// c=-6999999999999999999999999
 		return a-c;
 	}
+<<<<<<< Updated upstream
 }*/
+=======
+
+}
+>>>>>>> Stashed changes
 
 inf_int operator+(const inf_int& a, const inf_int& b)
 {
@@ -237,6 +300,71 @@ ostream& operator<<(ostream& out, const inf_int& a)
 }
 */
 
+string inf_int::fill_zero(const string& target, unsigned int num_add, bool right)
+{
+	string temp(num_add, '0');
+	return right == true ? target + temp : temp + target;
+
+}
+
+inf_int karatsuba(const inf_int& a, const inf_int& b)
+{
+	unsigned int a_length = a.length, b_length = b.length, length;
+	length = max(a_length, b_length);
+
+	inf_int result;
+
+	string adigit, bdigit, a0, a1, b0, b1;
+
+	adigit = a.digits;
+	reverse(adigit.begin(), adigit.end());
+	bdigit = b.digits;
+	reverse(bdigit.begin(), bdigit.end());
+
+	//a나 b가 0
+	if (a_length == 0 || b_length == 0) {
+		char* temp = new char[2];
+		result.digits[0] = '\0';
+		result.length = 0;
+		result.thesign = true;
+		return result;
+	}
+
+	unsigned int half = length / 2;
+
+	a1 = adigit.substr(0, half);
+	a0 = adigit.substr(half, length - half);
+	b1 = bdigit.substr(0, half);
+	b0 = bdigit.substr(half, length - half);
+
+	inf_int infa1(a1), infa0(a0), infb1(b1), infb0(b0);
+
+	//z2 = a1 * b1
+	inf_int z2 = karatsuba(infa1, infb1);
+
+	//z0 = a0 * b0
+	inf_int z0 = karatsuba(infa0, infb0);
+
+	//z1 = ((a0 + a1) * (b0 + b1)) - z0 - z2
+	inf_int z1 = ((infa0 + infa1) * (infb0 + infb1)) - z0 - z2;
+
+	string strz2, strz1;
+	strz2 = z2.digits;
+	strz1 = z1.digits;
+
+	for (unsigned int i = 0; i < 2 * (length - length / 2); i++) 
+		strz2.append("0");
+
+		
+	for (int i = 0; i < length - length / 2; i++)
+		strz1.append("0");
+
+	result = (z2 + z0) + z1;
+
+	return result;
+}
+
+
 void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리수에 n을 더한다. 0<=n<=9, ex) a가 391일때, Add(a, 2, 2)의 결과는 411
 {
 	if(this->length<index){ // 더해지는 객체의 길이가 index보다 작다면
@@ -265,3 +393,76 @@ void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리
 	}
 }
 
+/*
+*****************************************************************************************************************************************************
+* Expression class implemented below															
+* 
+*****************************************************************************************************************************************************/
+
+void Expression::get_exp(void)
+{
+	bool valid_input;
+	string temp;
+	do {
+		cout << "Enter an infix expression.\n"
+			"Expression format: (num1) (space) (operator) (space) (num2)\n"
+			">> ";
+
+		getline(cin, temp);
+		valid_input = check_valid(temp);
+
+		if (valid_input == false) cout << "Wrong expression. Please check\n\n";
+
+	} while (!valid_input);
+
+	this->expression = temp;
+}
+
+bool Expression::check_valid(string exp)
+{
+	/*
+	*  입력값은 공백을 없애서 확인을 함
+		문자가 있으면 false
+	
+		operator 이후에 공백 없이 ( 나오는건 괜찮음. 5 +(6.
+		(이후에 operator가 나오면 안됨 5+(5*5 "*)"
+		괄호 카운트도 필요.	
+		
+	*/
+
+	// 공백 제거
+	string::iterator end_pos = remove(exp.begin(), exp.end(), ' ');
+	exp.erase(end_pos, exp.end());
+
+	if ('0' <= exp[0] && exp[0] <= '9') return false;	// 식이 숫자로 시작하지 않는 경우 바로 false
+
+	for (size_t i = 0; i < exp.length(); i++) {
+		char token = exp[i];
+
+		bool cond1 = '0' <= token && token <= '9';
+		bool cond2 = (token == '+' || token == '-' || token == '*' || token == '/');
+		bool cond3 = (token == '(' || token == ')');
+
+		if (!(cond1 && cond2 && cond3)) {
+			// 허용되지 않는 토큰이 들어왔을 때
+			
+			return false;
+		}
+
+		else if (cond2) {
+			// 연산자 토큰이 들어왔을 때 그 전과 앞이 숫자인지 확인.
+			if (i < exp.length()) {
+				char temp1, temp2;
+				temp1 = exp[i - 1];
+				temp2 = exp[i + 1];
+
+				if (temp1 == '+' || temp1 == '-' || temp1 == '*' || temp1 == '/' || temp1 == '(') return false;
+
+				if (temp2 == '+' || temp2 == '-' || temp2 == '*' || temp2 == '/' || temp2 == ')') return false;
+
+			}
+		}
+	}
+
+	return true;
+}

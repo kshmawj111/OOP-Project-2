@@ -3,6 +3,10 @@
 #include <ostream>
 #include <iostream>
 #include <istream>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 class inf_int
 {
@@ -17,7 +21,7 @@ public :
 public :
     inf_int();               // assign 0 as a default value
     inf_int(int);
-    inf_int(const char* );
+    inf_int(string str);
     inf_int(const inf_int&); // copy constructor
     ~inf_int(); // destructor
 
@@ -31,11 +35,29 @@ public :
     friend inf_int operator+(const inf_int& , const inf_int&);
     friend inf_int operator-(const inf_int& , const inf_int&);
     friend inf_int operator*(const inf_int& , const inf_int&);
-    // friend inf_int operator/(const inf_int& , const inf_int&); // not required
+   
+    friend inf_int karatsuba(const inf_int& a, const inf_int& b);
 
     void Add(const char num, const unsigned int index);
+    string fill_zero(const string& target, unsigned int num_add, bool right);
     // friend ostream& operator<<(ostream& , const inf_int&);
-    //  friend istream& operator>>(istream& , inf_int&);    // not required
+
+};
+
+class Expression
+{
+    string expression;
+    typedef enum {lparen, rparen, plus, minus, times, divide, eos, operand} precedence;
+    //              0       1       2     3      4      5      6      7
+    int isp[7] = { 0, 19, 12, 12, 13, 13, 0 };
+    int icp[7] = { 20, 19, 12, 12, 13, 13, 0 };
+    char operators[6] = { '(', ')', '+', '-', '*', '/' };
+    vector <string> stack;
+
+public:
+    string to_postfix(string infix_exp);
+    void get_exp(void);
+    bool check_valid(string exp);
 };
 
 #endif
