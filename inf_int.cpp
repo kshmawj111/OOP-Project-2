@@ -48,14 +48,6 @@ inf_int::inf_int(int n){
 	}
 }
 
-inf_int::inf_int(const char* str)
-{	
-	// 0번째 값 인식 후 -면 부호 false
-	// for를 뒤에서부터 돌려서 reverse 후 새로운 객체에 저장
-	// "100"이 들어왔다면 내부 표현에 맞게 "001"로 변환
-	// ex) "-1053" -> thesign=false, digits="3501", len=4
-}
-
 inf_int::inf_int(const inf_int& a){
 	this->digits=new char[a.length+1];
 
@@ -82,42 +74,8 @@ inf_int& inf_int::operator=(const inf_int& a)
 	return *this; 
 }
 
-bool operator==(const inf_int& a, const inf_int& b)
-{
-    // we assume 0 is always positive.
-    if ( (strcmp(a.digits , b.digits)==0) && a.thesign==b.thesign )	// 부호가 같고, 절댓값이 일치해야함.
-        return true;
-    return false;
-}
 
-bool operator!=(const inf_int& a, const inf_int& b)
-{
-	return !operator==(a, b);
-}
 
-bool operator>(const inf_int& a, const inf_int& b)
-{
-	// 절대값 비교 로직
-	// 길이 비교 후 더 긴 것이 큼
-	// 같은 길이의 경우 큰 자릿수의 문자 비교
-	// to be filled
-	// 절대값 비교
-	// 둘 다 양수일 경우 절댓값 비교한 것을 그대로 return
-	// 둘 다 음수일 경우 절댓값 비교의 것을 반전하여 return
-	// 부호가 다를 경우, a가 양수일 경우 b는 음수, a가 음수일 경우 b는 양수이기에 a의 부호진리값을 반환하면 됨
-	return true;
-}
-
-bool operator<(const inf_int& a, const inf_int& b)
-{
-	if(operator>(a, b) || operator==(a, b)) {
-		return false;
-	}else{
-		return true;
-	}
-}
-
-/*
 inf_int operator+(const inf_int& a, const inf_int& b)
 {
 	inf_int c;
@@ -140,102 +98,8 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 								// c=-6999999999999999999999999
 		return a-c;
 	}
-}*/
-
-inf_int operator+(const inf_int& a, const inf_int& b)
-{
-	inf_int c;
-	unsigned int i;
-
-	if (a.thesign == b.thesign) {	// 이항의 부호가 같을 경우 + 연산자로 연산
-		for (i = 0; i < a.length; i++) {
-			c.Add(a.digits[i], i + 1);	// c의 i+1의 자릿수에 a.digits[i]의 값을 더함. ??? 왜 이렇게 하는 것인가?
-		}
-		for (i = 0; i < b.length; i++) {
-			c.Add(b.digits[i], i + 1);
-		}
-
-		c.thesign = a.thesign;
-
-		return c;
-	}
-	else {	// 이항의 부호가 다를 경우 - 연산자로 연산
-		c = b;	// 두번째 항을 c에 할당
-		c.thesign = a.thesign;	// -55 + 699999999999999999999
-								// c=-6999999999999999999999999
-		return a - c;
-	}
 }
 
-inf_int operator-(const inf_int& a, const inf_int& b)
-{
-	inf_int result;
-	unsigned long long int i;
-
-	if (a.thesign == b.thesign) {
-		result = a + b;
-		result.thesign = a.thesign;
-
-		return result;
-	}
-	else {	// 96 - 1000
-		result = a;
-		// Sub method 정의 후 실행
-	}
-	
-	// 부호가 다른 경우 뒤의 길이가 더 길면 부호를 -
-	// 차의 절댓값 계산
-	// 길이가 더 긴 스트링에서 짧은 스트링 뺌
-	// 각 자릿수에서 빼는데 만약 뺀 값이 0 미만이면 빌림을 함.
-	// 자릿수 값 계산 = a[i] - b[i] + borrowed - lend
-	// borrow는 빌려왔으면 1, lend는 빌려줬으면 1.
-	// 그냥 무조건 빌려온 다음에 남은 값을 캐리로 다음 자릿수 값에 넘겨주는 방법도 있음. 코드가 더 간결해짐
-	// a[i] - b[i] + 10 -> 나중에 배열에 저장된 두 자리 수 값을 다시 변환해야 하는 불편함 존재 
-	//
-	return result;
-}
-
-inf_int operator*(const inf_int& a, const inf_int& b)
-{
-	inf_int result;
-	string digit_result = "";
-	unsigned int max_length = a.length + b.length;
-	int final_digit, carry;
-	int* digit_mult = new int[a.length + b.length]();	// result는 각 자리수 간 곱셈의 결과를 저장하는 정수형 배열. () 통해 0으로 초기화
-														// result의 배열의 인덱스 자체가 자릿수 역할을 함. result[2] = 10^2의 자리
-	for (unsigned int a_digit=0; a_digit < a.length; a_digit++) {
-		for (unsigned int b_digit=0; b_digit < b.length; b_digit++) {
-			digit_mult[a_digit + b_digit] += (a.digits[a_digit] - '0') * (b.digits[b_digit] - '0');	// 각 자리수의 값을 계산
-		}
-	}
-
-	for (unsigned int i = 0; i < max_length-1; i++) {
-		final_digit = digit_mult[i] % 10;
-		carry = digit_mult[i] / 10;
-
-		char final_digit_char = final_digit + '0';
-		digit_result.append(1, final_digit_char);
-		digit_mult[i + 1] += carry;
-
-	}
-
-	return result;
-}
-
-/*
-ostream& operator<<(ostream& out, const inf_int& a)
-{
-	int i;
-
-	if(a.thesign==false){
-		out<<'-';
-	}
-	for(i=a.length-1; i>=0; i--){
-		out<<a.digits[i];
-	}
-	return out;
-}
-*/
 
 void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리수에 n을 더한다. 0<=n<=9, ex) a가 391일때, Add(a, 2, 2)의 결과는 411
 {
