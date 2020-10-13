@@ -5,10 +5,10 @@ using namespace std;
 
 int main()
 {
-	inf_int a, b, c;
+	inf_int a, b, c, d;
 	a = 7878;
 	b = 59;
+	d = 65;
 
-	a * b;
-
+	c = a * b + d;
 }

@@ -6,7 +6,7 @@
 
 class inf_int
 {
-public :
+private :
     char* digits;
     unsigned int length;
     bool thesign;   // true if positive , false if negative.
