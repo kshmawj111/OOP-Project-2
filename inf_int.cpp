@@ -43,7 +43,6 @@ bool Expression::check_valid(string exp)
 		괄호 카운트도 필요.
 
 	*/
-
 	// 변수 선언
 	string temp_exp;
 	temp_exp = exp;
@@ -53,7 +52,6 @@ bool Expression::check_valid(string exp)
 	int first_digit_token = get_token(temp_exp.at(0));
 	if (first_digit_token != 7) return false;	// 식이 숫자로 시작하지 않는 경우 바로 false
 	if (exp.at(0) == ' ') return false;
-	
 
 	// 공백 제거
 	string::iterator end_pos = remove(temp_exp.begin(), temp_exp.end(), ' ');
@@ -101,7 +99,7 @@ bool Expression::check_valid(string exp)
 	else return true;
 
 	// 공백 잘못 입력 된거 확인
-	if (exp.find("  ") != string::npos) return true;
+	if (exp.find("  ") != string::npos) return true;	// find에서 인자 문자열 못찾으면 npos 리턴. 찾으면 갯수 리턴. 따라서 npos를 리턴한 것은 올바른 식임
 	else return false;
 
 }
@@ -128,12 +126,14 @@ void Expression::to_postfix(string infix)
 
 	string postfix;
 	std::stack<std::string> op_stack;
-	std::queue<std::string> num_queue;
 
-	op_stack.push(NULL);
 	int infix_idx = 0, stack_idx = 0, token;
 
-	while (infix[infix_idx] != NULL) {
+	// 공백 제거
+	string::iterator end_pos = remove(infix.begin(), infix.end(), ' ');
+	infix.erase(end_pos, infix.end());
+
+	while (infix[infix_idx] != '\0') {
 		token = get_token(infix[infix_idx]);
 
 		if (token == 0) {
@@ -142,36 +142,62 @@ void Expression::to_postfix(string infix)
 			infix_idx++;
 		}
 		else if (token == 1) {
+			// token == ')'
 			string temp;
+
 			do {
 				temp = op_stack.top();
-				postfix.append(temp);
+
+				if(temp != "(") postfix.append(temp);
+
 				op_stack.pop();
+
 			} while (temp != "(");
+
 			infix_idx++;
 		}
 
 		else if (token == 2 || token == 3 || token == 4 || token == 5) {
-			string temp = op_stack.top();
-			int stack_token = get_token(temp.at(0));
+		
+			if (op_stack.empty() == false) {
 
-			while (isp[stack_token] >= icp[token]) {
-				postfix.append(op_stack.top());
-				op_stack.pop();
+				string temp = op_stack.top();
+				int stack_token = get_token(temp.at(0));
+			
+				while (isp[stack_token] >= icp[token]) {
+					postfix.append(op_stack.top());
+					op_stack.pop();
 
+					if (op_stack.empty() == false) {
+						temp = op_stack.top();
+						stack_token = get_token(temp.at(0));
+					}
+					else break;
+				}
 			}
+
+			infix_idx++;
 			op_stack.push(operators[token]);
 		}
 
 		else {
 			// numbers
 			string num_temp;
-			while (get_token(infix[++infix_idx]) == 7) {
+			while (get_token(infix[infix_idx]) == 7) {
 				num_temp.push_back(infix[infix_idx]);
+				infix_idx++;
 			}
 			num_temp.push_back(' ');
-			num_queue.push(num_temp);
+			postfix.append(num_temp);
 		}
 
 	}
+
+	// 스택에 남은 기호 전부 뱉어냄
+	while (op_stack.empty() == false) {
+		postfix.append(op_stack.top());
+		op_stack.pop();
+	}
+
+	expression = postfix;
 }

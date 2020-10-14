@@ -12,6 +12,7 @@ using namespace std;
 
 class Expression
 {
+public:
     string expression;
     int toekn_type[8] = { 0, 1, 2, 3, 4, 5, 6, 7 }; // (, ), +, -, *, /, '\0', ¼ýÀÚ
     int isp[7] = { 0, 19, 12, 12, 13, 13, 0 };
@@ -20,10 +21,9 @@ class Expression
     string operators[6] = { "(", ")", "+", "-", "*", "/" };
 
     std::stack<std::string> op_stack;
-    std::queue<std::string> num_queue;
 
+// public:
 
-public:
     void to_postfix(string infix_exp);
     bool check_valid(string exp);
     int get_token(char syombl);
