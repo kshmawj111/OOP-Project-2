@@ -1,5 +1,6 @@
 #include "./inf_int.h"
 #pragma warning(disable:4996)
+<<<<<<< Updated upstream
 /*
 Originally written by
 컴퓨터공학부
@@ -392,6 +393,9 @@ void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리
 		Add('1', index+1);			// 윗자리에 1을 더한다
 	}
 }
+=======
+
+>>>>>>> Stashed changes
 
 /*
 *****************************************************************************************************************************************************
