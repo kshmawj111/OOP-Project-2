@@ -5,14 +5,10 @@ using namespace std;
 
 int main()
 {
-	inf_int a, b, c;
-	a = 7878;
-	b = 59;
+	Expression exp;
+	string new_exp;
+	new_exp = exp.get_exp();
 
-<<<<<<< Updated upstream
-	a * b;
 
-=======
-	c = karatsuba(a, b);
->>>>>>> Stashed changes
+
 }

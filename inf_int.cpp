@@ -99,13 +99,14 @@ inf_int& inf_int::operator=(const inf_int& a)
 
 bool operator==(const inf_int& a, const inf_int& b)
 {
-<<<<<<< Updated upstream
+
     // we assume 0 is always positive.
     if ( (strcmp(a.digits , b.digits)==0) && a.thesign==b.thesign )	// 부호가 같고, 절댓값이 일치해야함.
         return true;
     return false;
 }
-=======
+
+inf_int operator*(const inf_int& a, const inf_int& b) {
 	inf_int result;
 	string digit_result = "";
 	unsigned long long int max_length = (unsigned long long)a.length + (unsigned long long)b.length;		// 곱셈 결과의 최대 길이
@@ -126,14 +127,14 @@ bool operator==(const inf_int& a, const inf_int& b)
 	else result.thesign = true;
 
 	// 절대값끼리 곱셈
-	for (unsigned int a_digit=0; a_digit < a.length; a_digit++) {
+	for (unsigned int a_digit = 0; a_digit < a.length; a_digit++) {
 
-		for (unsigned int b_digit=0; b_digit < b.length; b_digit++) {
+		for (unsigned int b_digit = 0; b_digit < b.length; b_digit++) {
 			// 각 자리수의 값을 계산 후 digit_mult에 합산
 			digit_mult[a_digit + b_digit] += (a.digits[a_digit] - '0') * (b.digits[b_digit] - '0');
 		}
 	}
->>>>>>> Stashed changes
+}
 
 bool operator!=(const inf_int& a, const inf_int& b)
 {
@@ -200,10 +201,7 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 	}
 <<<<<<< Updated upstream
 }*/
-=======
 
-}
->>>>>>> Stashed changes
 
 inf_int operator+(const inf_int& a, const inf_int& b)
 {
@@ -230,6 +228,7 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 	}
 }
 
+/*
 inf_int operator-(const inf_int& a, const inf_int& b)
 {
 	inf_int result;
@@ -257,6 +256,7 @@ inf_int operator-(const inf_int& a, const inf_int& b)
 	//
 	return result;
 }
+*/
 
 inf_int operator*(const inf_int& a, const inf_int& b)
 {
@@ -399,7 +399,7 @@ void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리
 * 
 *****************************************************************************************************************************************************/
 
-void Expression::get_exp(void)
+string Expression::get_exp(void)
 {
 	bool valid_input;
 	string temp;
@@ -416,6 +416,7 @@ void Expression::get_exp(void)
 	} while (!valid_input);
 
 	this->expression = temp;
+	return temp;
 }
 
 bool Expression::check_valid(string exp)
@@ -431,13 +432,15 @@ bool Expression::check_valid(string exp)
 	*/
 
 	// 공백 제거
-	string::iterator end_pos = remove(exp.begin(), exp.end(), ' ');
-	exp.erase(end_pos, exp.end());
+	string temp_exp;
+	temp_exp = exp;
+	string::iterator end_pos = remove(temp_exp.begin(), temp_exp.end(), ' ');
+	temp_exp.erase(end_pos, exp.end());
 
-	if ('0' <= exp[0] && exp[0] <= '9') return false;	// 식이 숫자로 시작하지 않는 경우 바로 false
+	if ('0' <= temp_exp[0] && temp_exp[0] <= '9') return false;	// 식이 숫자로 시작하지 않는 경우 바로 false
 
-	for (size_t i = 0; i < exp.length(); i++) {
-		char token = exp[i];
+	for (size_t i = 0; i < temp_exp.length(); i++) {
+		char token = temp_exp[i];
 
 		bool cond1 = '0' <= token && token <= '9';
 		bool cond2 = (token == '+' || token == '-' || token == '*' || token == '/');
@@ -453,8 +456,8 @@ bool Expression::check_valid(string exp)
 			// 연산자 토큰이 들어왔을 때 그 전과 앞이 숫자인지 확인.
 			if (i < exp.length()) {
 				char temp1, temp2;
-				temp1 = exp[i - 1];
-				temp2 = exp[i + 1];
+				temp1 = temp_exp[i - 1];
+				temp2 = temp_exp[i + 1];
 
 				if (temp1 == '+' || temp1 == '-' || temp1 == '*' || temp1 == '/' || temp1 == '(') return false;
 
@@ -465,4 +468,74 @@ bool Expression::check_valid(string exp)
 	}
 
 	return true;
+}
+
+int Expression::get_token(char symbol)
+{
+	switch(symbol)
+	{
+		case '(': return 0;
+		case ')': return 1;
+		case '+': return 2;
+		case '-': return 3;
+		case '*': return 4;
+		case '/': return 5;
+		case '\0': return 6;
+		default: return 7;
+			
+	}
+}
+
+void Expression::to_postfix(string infix)
+{
+	//int toekn_type[8] = { 0, 1, 2, 3, 4, 5, 6, 7 }; // (, ), +, -, *, /, '\0', 숫자
+
+	string postfix;
+	std::stack<std::string> op_stack;
+	std::queue<std::string> num_queue;
+
+	op_stack.push('\0');
+	int infix_idx = 0, stack_idx=0, token;
+	
+	while (infix[infix_idx] != '\0') {
+		token = get_token(infix[infix_idx]);
+
+		if (token == 0) {
+			// token == '('
+			op_stack.push("(");
+			infix_idx++;
+		}
+		else if (token == 1) {
+			string temp;
+			do {
+				temp = op_stack.top();
+				postfix.append(temp);
+				op_stack.pop();
+			} while (temp != "(");
+			infix_idx++;
+		}
+
+		else if (token == 2 || token == 3 || token == 4 || token == 5) {
+			string temp = op_stack.top();
+			int stack_token = get_token(temp.at(0));
+
+			while (isp[stack_token] >= icp[token]) {
+				postfix.append(op_stack.top());
+				op_stack.pop();
+
+			}
+			op_stack.push(operators[token]);
+		}
+
+		else {
+			// numbers
+			string num_temp;
+			while (get_token(infix[++infix_idx]) == 7) {
+				num_temp.push_back(infix[infix_idx]);
+			}
+			num_temp.push_back(' ');
+			num_queue.push(num_temp);
+		}
+
+	}
 }

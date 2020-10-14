@@ -4,6 +4,8 @@
 #include <iostream>
 #include <istream>
 #include <vector>
+#include <stack>
+#include <queue>
 #include <string>
 
 using namespace std;
@@ -47,17 +49,23 @@ public :
 class Expression
 {
     string expression;
-    typedef enum {lparen, rparen, plus, minus, times, divide, eos, operand} precedence;
-    //              0       1       2     3      4      5      6      7
+    int toekn_type[8] = { 0, 1, 2, 3, 4, 5, 6, 7 }; // (, ), +, -, *, /, '\0', ¼ýÀÚ
     int isp[7] = { 0, 19, 12, 12, 13, 13, 0 };
     int icp[7] = { 20, 19, 12, 12, 13, 13, 0 };
-    char operators[6] = { '(', ')', '+', '-', '*', '/' };
-    vector <string> stack;
+
+    string operators[6] = { "(", ")", "+", "-", "*", "/" };
+
+    std::stack<std::string> op_stack;
+    std::queue<std::string> num_queue;
+
+    bool check_valid(string exp);
+    int get_token(char syombl);
 
 public:
-    string to_postfix(string infix_exp);
-    void get_exp(void);
-    bool check_valid(string exp);
+    void to_postfix(string infix_exp);
+    string get_exp(void);
+    
+   
 };
 
 #endif

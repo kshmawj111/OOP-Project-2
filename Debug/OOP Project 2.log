@@ -1,7 +1,16 @@
 ﻿  inf_int.cpp
 C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(106,28): warning C4244: '초기화 중': 'unsigned __int64'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(236,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(178): warning C4715: 'operator+': 모든 제어 경로에서 값을 반환하지는 않습니다.
-inf_int.obj : error LNK2019: "class inf_int __cdecl operator-(class inf_int const &,class inf_int const &)" (??G@YA?AVinf_int@@ABV0@0@Z)"class inf_int __cdecl karatsuba(class inf_int const &,class inf_int const &)" (?karatsuba@@YA?AVinf_int@@ABV1@0@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-C:\Users\kshma\source\repos\OOP Project 2\Debug\OOP Project 2.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(114,28): warning C4244: '초기화 중': 'unsigned __int64'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(113,19): warning C4101: 'carry' :참조되지 않은 지역 변수입니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(113,6): warning C4101: 'final_digit' :참조되지 않은 지역 변수입니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(261,9): error C2084: 'inf_int operator *(const inf_int &,const inf_int &)' 함수에 이미 본문이 있습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(109): message : '*'의 이전 정의를 참조하십시오.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(349,49): error C2264: 'operator *': 함수 정의 또는 선언에 오류가 있습니다. 함수가 호출되지 않습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(349,32): error C2088: '*': class에 맞지 않습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(359,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(497,20): error C2664: 'void std::stack<std::string,std::deque<std::string,std::allocator<std::string>>>::push(std::basic_string<char,std::char_traits<char>,std::allocator<char>> &&)': 인수 1을(를) 'char'에서 'const std::basic_string<char,std::char_traits<char>,std::allocator<char>> &'(으)로 변환할 수 없습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(497,20): message : 원인: 'char'에서 'const std::basic_string<char,std::char_traits<char>,std::allocator<char>>'(으)로 변환할 수 없습니다.
+C:\Users\kshma\source\repos\OOP Project 2\OOP Project 2\inf_int.cpp(497,20): message : 소스 형식을 가져올 수 있는 생성자가 없거나 생성자 오버로드 확인이 모호합니다.
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include\stack(109,10): message : 'std::stack<std::string,std::deque<std::string,std::allocator<std::string>>>::push' 선언을 참조하십시오.
+  main.cpp
+  코드를 생성하고 있습니다...
