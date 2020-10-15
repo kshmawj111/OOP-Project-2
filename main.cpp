@@ -5,10 +5,11 @@ using namespace std;
 
 int main()
 {
-	inf_int a, b, c;
-	a = 7878;
-	b = 59;
+	Expression exp;
+	string new_exp = exp.get_exp();
+	exp.to_postfix(new_exp);
+	inf_int temp = exp.eval();
 
-	a * b;
+	cout << temp.digits << endl;
 
 }

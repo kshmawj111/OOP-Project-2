@@ -48,6 +48,24 @@ inf_int::inf_int(int n){
 	}
 }
 
+inf_int::inf_int(string exp)
+{
+	// sign
+	char sign = exp.at(0);
+	if (sign == '-') this->thesign = false;
+	else this->thesign = true;
+
+	// length
+	this->length = exp.length();
+
+	// digits
+	reverse(exp.begin(), exp.end());
+	char* reversed = new char[length + 1];
+	strcpy(reversed, exp.c_str());
+	this->digits = reversed;
+
+}
+
 inf_int::inf_int(const char* str)
 {	
 	// 0번째 값 인식 후 -면 부호 false
@@ -117,31 +135,6 @@ bool operator<(const inf_int& a, const inf_int& b)
 	}
 }
 
-/*
-inf_int operator+(const inf_int& a, const inf_int& b)
-{
-	inf_int c;
-	unsigned int i;
-
-	if(a.thesign==b.thesign){	// 이항의 부호가 같을 경우 + 연산자로 연산
-		for(i=0; i<a.length; i++){
-			c.Add(a.digits[i], i+1);	// c의 i+1의 자릿수에 a.digits[i]의 값을 더함. ??? 왜 이렇게 하는 것인가?
-		}	
-		for(i=0; i<b.length; i++){
-			c.Add(b.digits[i], i+1);
-		}
-
-		c.thesign=a.thesign;	
-
-		return c;
-	}else{	// 이항의 부호가 다를 경우 - 연산자로 연산
-		c=b;	// 두번째 항을 c에 할당
-		c.thesign=a.thesign;	// -55 + 699999999999999999999
-								// c=-6999999999999999999999999
-		return a-c;
-	}
-}*/
-
 inf_int operator+(const inf_int& a, const inf_int& b)
 {
 	inf_int c;
@@ -209,6 +202,7 @@ inf_int operator*(const inf_int& a, const inf_int& b)
 		}
 	}
 
+	// 각 배열에 저장된 수에 알맞은 자리값만 남기고 다음 행으로 캐리
 	for (unsigned int i = 0; i < max_length-1; i++) {
 		final_digit = digit_mult[i] % 10;
 		carry = digit_mult[i] / 10;
@@ -265,3 +259,265 @@ void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리
 	}
 }
 
+
+/*
+*****************************************************************************************************************************************************
+* Expression class implemented below
+*
+*****************************************************************************************************************************************************/
+
+string Expression::get_exp(void)
+{
+	bool valid_input;
+	string temp;
+	do {
+		valid_input = 0;
+		cout << "Enter an infix expression.\n"
+			"Expression format: (num1) (space) (operator) (space) (num2)\n"
+			">> ";
+
+		getline(cin, temp);
+		if (temp.size() < 1) cout << "Expression must be entered\n";
+
+		else {
+			// 입력 식에 뭐라도 들어왔을 때만 검사 실행
+			valid_input = check_valid(temp);
+			if (valid_input == false) cout << "Wrong expression. Please check\n\n";
+		}
+
+	} while (!valid_input);
+
+	this->expression = temp;
+	return temp;
+}
+
+bool Expression::check_valid(string exp)
+{
+	/*
+	*  입력값은 공백을 없애서 확인을 함
+		문자가 있으면 false
+
+		operator 이후에 공백 없이 ( 나오는건 괜찮음. 5 +(6.
+		(이후에 operator가 나오면 안됨 5+(5*5 "*)"
+		괄호 카운트도 필요.
+
+	*/
+	// 변수 선언
+	string temp_exp;
+	temp_exp = exp;
+	int bracket_count = 0;
+
+	// 가장 앞에서 나오는 문자 검사
+	int first_digit_token = get_token(temp_exp.at(0));
+	if (first_digit_token != 7) return false;	// 식이 숫자로 시작하지 않는 경우 바로 false
+	if (exp.at(0) == ' ') return false;
+
+	// 공백 제거
+	string::iterator end_pos = remove(temp_exp.begin(), temp_exp.end(), ' ');
+	temp_exp.erase(end_pos, temp_exp.end());
+
+
+	for (size_t i = 0; i < temp_exp.length(); i++) {
+		char token = temp_exp[i];
+
+		bool cond1 = '0' <= token && token <= '9';
+		bool cond2 = (token == '+' || token == '-' || token == '*' || token == '/');
+		bool cond3 = (token == '(' || token == ')');
+
+		if (!(cond1 || cond2 || cond3))	return false; // 허용되지 않는 토큰이 들어왔을 때
+
+		else if (cond2) {
+			// 연산자 토큰이 들어왔을 때 그 전과 앞이 숫자인지 확인.
+			if (i < exp.length()) {
+				char temp1, temp2;
+				temp1 = temp_exp[i - 1];
+				temp2 = temp_exp[i + 1];
+
+				if (temp1 == '+' || temp1 == '-' || temp1 == '*' || temp1 == '/' || temp1 == '(') return false;
+
+				if (temp2 == '+' || temp2 == '-' || temp2 == '*' || temp2 == '/' || temp2 == ')') return false;
+
+			}
+		}
+
+		else if (cond3) {
+			// 괄호 토큰 들어오면 괄호 갯수 파악
+			// 여는 괄호 없이 ) 이 나오면 false 반환. ( 는 값을 증가, )는 감소
+			if (token == '(') bracket_count++;
+			else bracket_count--;
+
+			if (bracket_count < 0) {	// 닫는 괄호가 먼저 나오면 음수가 되므로 false 반환
+				return false;
+			}
+		}
+
+
+	}
+
+	if (bracket_count != 0) return false;
+	else return true;
+
+	// 공백 잘못 입력 된거 확인
+	if (exp.find("  ") != string::npos) return true;	// find에서 인자 문자열 못찾으면 npos 리턴. 찾으면 갯수 리턴. 따라서 npos를 리턴한 것은 올바른 식임
+	else return false;
+
+}
+
+int Expression::get_token(char symbol)
+{
+	switch (symbol)
+	{
+	case '(': return 0;
+	case ')': return 1;
+	case '+': return 2;
+	case '-': return 3;
+	case '*': return 4;
+	case '/': return 5;
+	case '\0': return 6;
+	default: return 7;
+
+	}
+}
+
+void Expression::to_postfix(string infix)
+{
+	//int toekn_type[8] = { 0, 1, 2, 3, 4, 5, 6, 7 }; // (, ), +, -, *, /, '\0', 숫자
+
+	string postfix;	// 최종 저장할 postfix 식
+	std::stack<std::string> op_stack;	// 연산자가 들어가는 stack
+
+	int infix_idx = 0, stack_idx = 0, token;
+
+	// 공백 제거
+	string::iterator end_pos = remove(infix.begin(), infix.end(), ' ');
+	infix.erase(end_pos, infix.end());
+
+	while (infix[infix_idx] != '\0') {
+		token = get_token(infix[infix_idx]);
+
+		if (token == 0) {
+			// token == '('
+			op_stack.push("(");
+			infix_idx++;
+		}
+		else if (token == 1) {
+			// token == ')'
+			string temp;
+
+			do {
+				temp = op_stack.top();
+
+				if (temp != "(") postfix.append(temp);
+
+				op_stack.pop();
+
+			} while (temp != "(");
+
+			infix_idx++;
+		}
+
+		else if (token == 2 || token == 3 || token == 4 || token == 5) {
+
+			if (op_stack.empty() == false) {
+
+				string temp = op_stack.top();
+				int stack_token = get_token(temp.at(0));
+
+				while (isp[stack_token] >= icp[token]) {
+					postfix.append(op_stack.top());
+					op_stack.pop();
+
+					if (op_stack.empty() == false) {
+						temp = op_stack.top();
+						stack_token = get_token(temp.at(0));
+					}
+					else break;
+				}
+			}
+
+			infix_idx++;
+			op_stack.push(operators[token].append(" "));
+		}
+
+		else {
+			// numbers
+			string num_temp;
+			while (get_token(infix[infix_idx]) == 7) {
+				num_temp.push_back(infix[infix_idx]);
+				infix_idx++;
+			}
+			num_temp.push_back(' ');
+			postfix.append(num_temp);
+		}
+
+	}
+
+	// 스택에 남은 기호 전부 뱉어냄
+	while (op_stack.empty() == false) {
+		postfix.append(op_stack.top());
+		op_stack.pop();
+	}
+
+	// expression 멤버 변수에 저장
+	expression = postfix;
+}
+
+inf_int Expression::eval()
+{
+	stack <inf_int> eval_stack;		// 연산하기 위한 숫자가 나오면 inf_int로 변환해 넣음.
+	unsigned long long idx = 0;		// 식 idx
+	const string postfix = expression;	// 멤버 변수의 식을 새로운 주소 공간에 할당
+
+	while (postfix[idx] != '\0') {
+		string token;	// 토큰 변수.
+
+		while (postfix[idx++] != ' ') {	// 모든 postfix는 각 그 토큰 사이에 공백으로 구분되어 있음.
+			
+			token.push_back(postfix[idx-1]);
+
+		}
+
+		int tkn_num = get_token(token.at(0));
+
+		if (tkn_num == 7) {
+			// 토큰이 숫자일 때
+
+			inf_int new_num(token);
+			eval_stack.push(new_num);
+
+		}
+
+		else {
+			// opeartor 나왔을 때
+			inf_int op2 = eval_stack.top();
+			eval_stack.pop();
+
+			inf_int op1 = eval_stack.top();
+			eval_stack.pop();
+
+			// +, -, *, / 의 tkn_num 값 차례대로: 2, 3, 4, 5
+			switch (tkn_num) {
+			case 2: // +
+				eval_stack.push(op1 + op2);
+				break;
+
+			case 3:	// -
+				eval_stack.push(op1 - op2);
+				break;
+
+			case 4: // *
+				eval_stack.push(op1 * op2);
+				break;
+
+			/*case 5:	// /
+				eval_stack.push(op1 / op2);
+				break;
+				*/
+			}
+		}
+	
+	}
+
+	return eval_stack.top();
+
+}
