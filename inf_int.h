@@ -3,6 +3,11 @@
 #include <ostream>
 #include <iostream>
 #include <istream>
+#include <vector>
+#include <stack>
+#include <string>
+
+using namespace std;
 
 class inf_int
 {
@@ -36,6 +41,28 @@ public :
     void Add(const char num, const unsigned int index);
     // friend ostream& operator<<(ostream& , const inf_int&);
     //  friend istream& operator>>(istream& , inf_int&);    // not required
+};
+
+class Expression
+{
+public:
+    string expression;
+    int toekn_type[8] = { 0, 1, 2, 3, 4, 5, 6, 7 }; // (, ), +, -, *, /, '\0', ¼ýÀÚ
+    int isp[7] = { 0, 19, 12, 12, 13, 13, 0 };
+    int icp[7] = { 20, 19, 12, 12, 13, 13, 0 };
+
+    string operators[6] = { "(", ")", "+", "-", "*", "/" };
+
+    std::stack<std::string> op_stack;
+
+    // public:
+
+    void to_postfix(string infix_exp);
+    bool check_valid(string exp);
+    int get_token(char syombl);
+    string get_exp(void);
+    inf_int eval(const string& postfix);
+
 };
 
 #endif
