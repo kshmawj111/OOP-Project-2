@@ -1,4 +1,4 @@
-#include "./inf_int.h"
+#include "inf_int.h"
 
 /*
 Originally written by
@@ -6,7 +6,6 @@ Originally written by
 정진경
 */
 
-using namespace std;
 
 inf_int::inf_int()
 {
@@ -67,12 +66,34 @@ inf_int::inf_int(string exp)
 }
 
 inf_int::inf_int(const char* str)
-{	
-	// 0번째 값 인식 후 -면 부호 false
-	// for를 뒤에서부터 돌려서 reverse 후 새로운 객체에 저장
+{
+	int cnt = 0;
+	if (str[0] == '-') {
+		this->thesign = false;
+	}
+	else {
+		this->thesign = true;
+
+	}
+	while (str[cnt] != '\0') {
+		cnt++;
+	}
+	char* buf = new char[cnt + 1];
+
+	for (int i = 0; i < cnt; i++) {
+		printf("%c", str[cnt - i - 1]);
+		buf[i] = str[cnt - i - 1];
+	}
+	if (this->thesign = false) {
+		buf[cnt] = '\0';
+	}
+	strcpy(this->digits, buf); //분명히 buf까지 잘 저장되는데 strcpy에서 Exception이 뜨는데 왜그런지 모르겠어욤..
+	// to be filled 
+	// 부호 처리 
 	// "100"이 들어왔다면 내부 표현에 맞게 "001"로 변환
 	// ex) "-1053" -> thesign=false, digits="3501", len=4
 }
+
 
 inf_int::inf_int(const inf_int& a){
 	this->digits=new char[a.length+1];
@@ -85,6 +106,7 @@ inf_int::inf_int(const inf_int& a){
 inf_int::~inf_int(){
 	delete digits;		// 메모리 할당 해제
 }
+
 
 inf_int& inf_int::operator=(const inf_int& a)
 {
@@ -113,17 +135,78 @@ bool operator!=(const inf_int& a, const inf_int& b)
 	return !operator==(a, b);
 }
 
+/*
 bool operator>(const inf_int& a, const inf_int& b)
 {
-	// 절대값 비교 로직
-	// 길이 비교 후 더 긴 것이 큼
-	// 같은 길이의 경우 큰 자릿수의 문자 비교
+	
+	if (a.thesign != b.thesign) {
+		if (a.thesign == true && b.thesign == false) return true;
+		else return false;
+	}
+
+	else {
+		// sign same case
+		if (a.length > b.length) {
+			return true;
+		}
+		else if (a.length == b.length) {
+			for (unsigned int i = a.length; i < 0; i--) {
+				if (a.digits[i] > b.digits[i]) return true;
+			}
+			return false;
+		}
+		else return false;
+	}
+
+}
+*/
+
+bool operator>(const inf_int& a, const inf_int& b)
+{
+	
+	bool result;
+	if (a.length > b.length) {
+		result = true;
+	}
+	else if (a.length < b.length) {
+		result = false;
+	}
+	else {
+		for (int i = 1; i <= a.length; i++) {
+			char A = a.digits[a.length - i];
+			char B = b.digits[b.length - i];
+			if (A > B) {
+				result = true;
+				break;
+			}
+			else if (A < B) {
+				result = false;
+				break;
+			}
+			else if (i == a.length) result = false;
+		}
+
+	}
+
+	bool a_sign = a.thesign;
+	bool b_sign = b.thesign;
+	if ((a_sign = true) && (b_sign = true)) {
+		return result;
+	}
+	else if ((a_sign = false) && (b_sign = false)) {
+		if (result = true) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	return true;
 	// to be filled
 	// 절대값 비교
 	// 둘 다 양수일 경우 절댓값 비교한 것을 그대로 return
 	// 둘 다 음수일 경우 절댓값 비교의 것을 반전하여 return
 	// 부호가 다를 경우, a가 양수일 경우 b는 음수, a가 음수일 경우 b는 양수이기에 a의 부호진리값을 반환하면 됨
-	return true;
 }
 
 bool operator<(const inf_int& a, const inf_int& b)
@@ -160,33 +243,82 @@ inf_int operator+(const inf_int& a, const inf_int& b)
 	}
 }
 
-inf_int operator-(const inf_int& a, const inf_int& b)
-{
-	inf_int result;
-	unsigned long long int i;
 
+inf_int operator-(const inf_int& a, const inf_int& b) {
 	if (a.thesign == b.thesign) {
-		result = a + b;
-		result.thesign = a.thesign;
+		inf_int c;
+		if ((a > b) && (a.thesign == true)) {
 
-		return result;
+			for (int i = 0; i < a.length; i++) {
+				c.Add(a.digits[i], i + 1);
+			}
+			for (int i = 0; i < b.length; i++) {
+				c.Sub(b.digits[i], i + 1);
+			}
+
+			if (c.digits[a.length - 1] == 0)
+				c.length = a.length - 1;
+			else
+				c.length = a.length;
+			c.thesign = true;
+		}
+
+		else if ((a < b) && (a.thesign == true)) {
+			return b - a;
+		}
+
+		else if ((a > b) && (a.thesign == false)) {
+
+			for (int i = 0; i < b.length; i++) {
+				c.Add(b.digits[i], i + 1);
+			}
+			for (int i = 0; i < a.length; i++) {
+				c.Sub(a.digits[i], i + 1);
+			}
+
+			if (c.digits[a.length - 1] == 0)
+				c.length = a.length - 1;
+			else
+				c.length = a.length;
+			c.thesign = false;
+		}
+
+		else if ((a < b) && (a.thesign == false)) {
+			return b - a;
+		}
+
+
+		else {
+			inf_int c(0);
+			return c;
+		}
+
 	}
-	else {	// 96 - 1000
-		result = a;
-		// Sub method 정의 후 실행
+
+	else {
+		inf_int c;
+		for (int i = 0; i < b.length; i++) {
+			c.Add(b.digits[i], i + 1);
+		}
+		c.length = b.length;
+		c.thesign = a.thesign;
+		return a + c;
 	}
-	
-	// 부호가 다른 경우 뒤의 길이가 더 길면 부호를 -
-	// 차의 절댓값 계산
-	// 길이가 더 긴 스트링에서 짧은 스트링 뺌
-	// 각 자릿수에서 빼는데 만약 뺀 값이 0 미만이면 빌림을 함.
-	// 자릿수 값 계산 = a[i] - b[i] + borrowed - lend
-	// borrow는 빌려왔으면 1, lend는 빌려줬으면 1.
-	// 그냥 무조건 빌려온 다음에 남은 값을 캐리로 다음 자릿수 값에 넘겨주는 방법도 있음. 코드가 더 간결해짐
-	// a[i] - b[i] + 10 -> 나중에 배열에 저장된 두 자리 수 값을 다시 변환해야 하는 불편함 존재 
-	//
-	return result;
+
 }
+
+
+
+
+void inf_int::Sub(const char num, const unsigned int index) {
+	this->digits[index - 1] -= num - '0';
+
+	if (this->digits[index - 1] < '0') {
+		this->digits[index - 1] += 10;
+		Sub('1', index + 1);
+	}
+}
+
 
 inf_int operator*(const inf_int& a, const inf_int& b)
 {
@@ -196,27 +328,113 @@ inf_int operator*(const inf_int& a, const inf_int& b)
 	int final_digit, carry;
 	int* digit_mult = new int[a.length + b.length]();	// result는 각 자리수 간 곱셈의 결과를 저장하는 정수형 배열. () 통해 0으로 초기화
 														// result의 배열의 인덱스 자체가 자릿수 역할을 함. result[2] = 10^2의 자리
-	for (unsigned int a_digit=0; a_digit < a.length; a_digit++) {
-		for (unsigned int b_digit=0; b_digit < b.length; b_digit++) {
+	for (unsigned int a_digit = 0; a_digit < a.length; a_digit++) {
+		for (unsigned int b_digit = 0; b_digit < b.length; b_digit++) {
 			digit_mult[a_digit + b_digit] += (a.digits[a_digit] - '0') * (b.digits[b_digit] - '0');	// 각 자리수의 값을 계산
 		}
 	}
 
 	// 각 배열에 저장된 수에 알맞은 자리값만 남기고 다음 행으로 캐리
-	for (unsigned int i = 0; i < max_length-1; i++) {
+	for (unsigned int i = 0; i < max_length; i++) {
 		final_digit = digit_mult[i] % 10;
 		carry = digit_mult[i] / 10;
 
+		if (i < max_length) digit_mult[i + 1] += carry;
+
 		char final_digit_char = final_digit + '0';
 		digit_result.append(1, final_digit_char);
-		digit_mult[i + 1] += carry;
+
 
 	}
+
+	while (digit_result[digit_result.length()-1] == '0'){
+		digit_result.pop_back();
+	}
+
+	char* _result = new char[digit_result.length()+1];
+
+	strcpy(_result, digit_result.c_str());
+	_result[digit_result.length()] = '\0';
+	result.digits = _result;
+	result.length = digit_result.length();
 
 	return result;
 }
 
 /*
+inf_int operator*(const inf_int& a, const inf_int& b)
+{
+	inf_int c;
+	inf_int d;
+	unsigned int i;
+	for (i = 0; i < a.length; i++) {
+		c.Add(a.digits[i], i + 1);
+		d.Add(a.digits[i], i + 1);
+	}
+
+	d.digits = (char*)realloc(d.digits, a.length  b.length);
+	for (i = 0; i < b.digits[i]; i++) {   // b의 digits 값 만큼 a+a...+a 를 연산
+		if (i >= 1) {
+			
+
+			if (d.digits == NULL) {		// 할당 실패 예외처리
+				cout << "Memory reallocation failed, the program will terminate." << endl;
+				exit(0);
+			}
+
+			d.length++;			// 길이 지정
+			d.digits[d.length - 1] = 0;
+
+		}
+		c.Add(d.digits[i], i + 1);
+
+	}
+
+
+	if (a.thesign == b.thesign)
+		c.thesign = true;
+	else
+		c.thesign = false;
+
+	return c;
+
+}
+*/
+
+inf_int operator/(const inf_int& a, const inf_int& b) {
+
+	inf_int c;
+	inf_int d;
+	inf_int e(1);
+	c.thesign = a.thesign == b.thesign;
+	if (a.length >= b.length)
+	{
+		c.length = a.length - b.length + 1;
+	}
+	else return c; //b가 더크면 0 반환
+
+	int i;
+
+	for (i = 0; i < a.length; i++) {
+		d.Add(a.digits[i], i + 1); //d에 a를 넣어준다.
+	}
+
+	while (1)
+	{
+
+		if (d < b)
+			break;
+
+		d = d - b;
+
+		c = c + e;
+	}
+
+	return c;
+
+}
+
+
 ostream& operator<<(ostream& out, const inf_int& a)
 {
 	int i;
@@ -229,7 +447,7 @@ ostream& operator<<(ostream& out, const inf_int& a)
 	}
 	return out;
 }
-*/
+
 
 void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리수에 n을 더한다. 0<=n<=9, ex) a가 391일때, Add(a, 2, 2)의 결과는 411
 {
@@ -258,7 +476,6 @@ void inf_int::Add(const char num, const unsigned int index)	// a의 index 자리
 		Add('1', index+1);			// 윗자리에 1을 더한다
 	}
 }
-
 
 /*
 *****************************************************************************************************************************************************
@@ -436,7 +653,9 @@ void Expression::to_postfix(string infix)
 			}
 
 			infix_idx++;
-			op_stack.push(operators[token].append(" "));
+			string op = operators[token];
+			op.push_back(',');
+			op_stack.push(op);
 		}
 
 		else {
@@ -446,7 +665,7 @@ void Expression::to_postfix(string infix)
 				num_temp.push_back(infix[infix_idx]);
 				infix_idx++;
 			}
-			num_temp.push_back(' ');
+			num_temp.push_back(',');
 			postfix.append(num_temp);
 		}
 
@@ -466,16 +685,22 @@ inf_int Expression::eval()
 {
 	stack <inf_int> eval_stack;		// 연산하기 위한 숫자가 나오면 inf_int로 변환해 넣음.
 	unsigned long long idx = 0;		// 식 idx
-	const string postfix = expression;	// 멤버 변수의 식을 새로운 주소 공간에 할당
+	string postfix = expression;	// 멤버 변수의 식을 새로운 주소 공간에 할당
 
-	while (postfix[idx] != '\0') {
+	//postfix.pop_back();
+	//postfix.push_back('\0');
+
+	while (idx < postfix.length()) { 
 		string token;	// 토큰 변수.
 
-		while (postfix[idx++] != ' ') {	// 모든 postfix는 각 그 토큰 사이에 공백으로 구분되어 있음.
-			
-			token.push_back(postfix[idx-1]);
+		while (postfix[idx] != ',') {	// posftfix의 식은 토큰+' '로 되어 있기 때문에 토큰을 판별하는 공백이 나올 때 까지의 모든 문자를 토큰 스트링에 추가한다.
+										// 그런데 만약 postfix의 다음 값이 공백이 아니라 NULL 이라면 
+			token.push_back(postfix[idx]);
+			idx++;
 
 		}
+		idx++;
+		//if (postfix[idx + 1] == '\0' ) token.push_back(postfix[idx]);
 
 		int tkn_num = get_token(token.at(0));
 
